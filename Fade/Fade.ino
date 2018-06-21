@@ -1,25 +1,30 @@
-int led = 9;           // the PWM pin the LED is attached to
-int brightness = 0;    // how bright the LED is
-int fadeAmount = 5;    // how many points to fade the LED by
+const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
+const int analogOutPin = 9; // Analog output pin that the LED is attached to
 
-// the setup routine runs once when you press reset:
+int sensorValue = 0;        // value read from the pot
+int outputValue = 0;        // value output to the PWM (analog out)
+
 void setup() {
-  // declare pin 9 to be an output:
-  pinMode(led, OUTPUT);
+  // initialize serial communications at 9600 bps:
+  Serial.begin(1200); 
 }
 
-// the loop routine runs over and over again forever:
 void loop() {
-  // set the brightness of pin 9:
-  analogWrite(led, brightness);
+  // read the analog in value:
+  sensorValue = analogRead(analogInPin);            
+  // map it to the range of the analog out:
+  outputValue = map(sensorValue, 0, 1023, 0, 255);  
+  // change the analog out value:
+  analogWrite(analogOutPin, outputValue);           
 
-  // change the brightness for next time through the loop:
-  brightness = brightness + fadeAmount;
+  // print the results to the serial monitor:
+  Serial.print("sensor = " );                       
+  Serial.print(sensorValue);      
+  Serial.print("\t output = ");      
+  Serial.println(outputValue);   
 
-  // reverse the direction of the fading at the ends of the fade:
-  if (brightness <= 0 || brightness >= 255) {
-    fadeAmount = -fadeAmount;
-  }
-  // wait for 30 milliseconds to see the dimming effect
-  delay(30);
+  // wait 2 milliseconds before the next loop
+  // for the analog-to-digital converter to settle
+  // after the last reading:
+  delay(2);                     
 }
